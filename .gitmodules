@@ -1,0 +1,6 @@
+[submodule "3rd/pdfio"]
+	path = 3rd/pdfio
+	url = https://github.com/michaelrsweet/pdfio.git
+[submodule "3rd/podofo"]
+	path = 3rd/podofo
+	url = https://github.com/podofo/podofo.git
