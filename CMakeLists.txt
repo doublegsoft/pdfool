@@ -70,42 +70,20 @@ else()
 endif()
 
 # -----------------------------------------------------------------------------
-# Application target (auto-discovers sources under src/)
-# Will only be created if at least one source file exists.
+# poppler (prebuilt static library in 3rd/poppler-25.09.1/build/Release/libpoppler.a)
 # -----------------------------------------------------------------------------
-# file(GLOB_RECURSE PDFOOL_SOURCES CONFIGURE_DEPENDS
-#   ${CMAKE_SOURCE_DIR}/src/*.cpp
-#   ${CMAKE_SOURCE_DIR}/src/*.c)
-
-# if(PDFOOL_SOURCES)
-#   add_executable(pdfool ${PDFOOL_SOURCES})
-
-#   # Include paths for convenience
-#   target_include_directories(pdfool PRIVATE
-#     ${CMAKE_SOURCE_DIR}/src
-#     ${PDFIO_INC_CANDIDATES})
-
-#   # Link optional dependencies if present
-#   if(TARGET PDFIO::pdfio)
-#     target_link_libraries(pdfool PRIVATE PDFIO::pdfio)
-#   endif()
-#   if(PODOFO_TARGET_NAME)
-#     target_link_libraries(pdfool PRIVATE ${PODOFO_TARGET_NAME})
-#   endif()
-
-#   if(APPLE)
-#     target_compile_definitions(pdfool PRIVATE _DARWIN_C_SOURCE)
-#   endif()
-
-#   # Warnings
-#   if(MSVC)
-#     target_compile_options(pdfool PRIVATE /W4)
-#   else()
-#     target_compile_options(pdfool PRIVATE -Wall -Wextra -Wpedantic)
-#   endif()
-# else()
-#   message(STATUS "No sources found in ${CMAKE_SOURCE_DIR}/src. Skipping 'pdfool' executable.")
-# endif()
+set(POPPLER_ROOT           ${CMAKE_SOURCE_DIR}/3rd/poppler-25.09.1)
+set(POPPLER_BUILD_RELEASE  ${POPPLER_ROOT}/build/darwin)
+set(POPPLER_LIB            ${POPPLER_BUILD_RELEASE}/libpoppler.dylib)
+set(POPPLER_INC            ${POPPLER_ROOT})
+set(POPPLER_GLIB_LIB       ${POPPLER_BUILD_RELEASE}/glib)
+set(POPPLER_GLIB_INC       "${POPPLER_ROOT}/glib"
+                           "${POPPLER_ROOT}/build/darwin/glib")
+set(GLIB_LIB               "/opt/homebrew/Cellar/glib/2.86.0/lib"
+                           "/opt/homebrew/Cellar/cairo/1.18.4/lib")
+set(GLIB_INC               "/opt/homebrew/Cellar/glib/2.86.0/include/glib-2.0" 
+                           "/opt/homebrew/Cellar/glib/2.86.0/lib/glib-2.0/include"
+                           "/opt/homebrew/Cellar/cairo/1.18.4/include/cairo")
 
 add_executable(pdfool-crop 
   src/pdfool-crop.c
@@ -113,12 +91,23 @@ add_executable(pdfool-crop
 
 target_include_directories(pdfool-crop PRIVATE
   ${PDFIO_INC}
+  ${GLIB_INC}
+  ${POPPLER_INC}
+  ${POPPLER_GLIB_INC}
 )
 
 target_link_directories(pdfool-crop PRIVATE
   ${PDFIO_BUILD_RELEASE}
+  ${POPPLER_BUILD_RELEASE}
+  ${GLIB_LIB}
+  ${POPPLER_GLIB_LIB}
 )
 
 target_link_libraries(pdfool-crop PRIVATE
   pdfio
+  glib-2.0
+  gobject-2.0
+  poppler-glib
+  cairo
+  poppler
 )
